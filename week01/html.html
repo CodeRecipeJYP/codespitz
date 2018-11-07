@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<section id="data" />
+</body>
+<script>{
+    const error = (msg) => {
+        throw msg;
+    };
+
+    const Table = (_ => {
+        const Private = Symbol();
+        return class {
+            constructor(parent) {
+                if (typeof parent != 'string' || !parent) {
+                    // 실무는 error로 감싸고 debug에서는 throw, release는 console.log로 변경
+                    throw "invalid param";
+                }
+
+                this[Private] = {
+                    parent
+                };
+            }
+
+            // load(url) {
+            //     fetch(url)
+            //         .then(response => response.json())
+            //         .then(_ => this.render());
+            // }
+
+            async load(url) {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw "invalid response";
+                }
+                const {
+                    title,
+                    header,
+                    items
+                } = await response.json();
+
+                if (!item.length) {
+                    throw "no items";
+                }
+                Object.assign(this[Private], {
+                    title, header, items
+                });
+
+                this.render();
+
+                // // async chaining 동기, 비동기 상관없이 동기처럼 짜는게 가능해짐.
+                // const response = await fetch(url), json = await response.json();
+                // this.render();
+            }
+
+            render() {
+                // check
+                const {
+                    parent, items
+                } = this[Private];
+                const parentEl = document.querySelector(parent);
+
+                if (!parentEl) {
+                    error("invalid parent element");
+                }
+
+                // blabrblar
+
+                // create table
+                table.appendChild(
+                    header.reduce((thead, data) => {
+                        const th = document.createElement("th");
+                        th.innerHTML = data;
+                        thead.appendChild(th);
+                        return thead;
+                    }, document.createElement("thead"))
+                );
+                // title caption
+                // items tr
+                // inject table into parent
+                table.appendChild(...items.map(
+                    item => item.reduce((tr, data) => {
+                        const td = document.createElement("td");
+                        td.innerHTML = data;
+                        tr.appendChild(td);
+                        return tr;
+                    }, document.createElement("tr"))
+                ));
+                parentEl.appendChild(table);
+            }
+        };
+    })();
+    const table = new Table("#data");
+    table.load("75_1.json");
+}</script>
+</html>
