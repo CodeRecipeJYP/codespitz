@@ -74,36 +74,13 @@
     };
 
     const Renderer = class {
-        async render() {
-            const {
-                title, header, items
-            } = await this._info;
-
-            this._private = {
-                title, header, items
-            };
-
-            this._render();
-        }
-
-        get title() {
-            return this._private.title;
-        }
-
-        get header() {
-            return this._private.header;
-        }
-
-        get items() {
-            return this._private.items;
-        }
-
-        setData(data) {
-            if(!(data instanceof Data)){
+        async render(data) {
+            if (!(data instanceof Data)) {
                 error("invalid data type");
             }
 
-            this._info = data.getData();
+            this._info = await data.getData();
+            this._render();
         }
 
         _render() {
@@ -122,14 +99,14 @@
 
         _render() {
             const parent = document.querySelector(this._parent);
-            if(!parent) {
+            if (!parent) {
                 error("invaild parent");
             }
             parent.innerHTML = "";
 
             const {
                 title, header, items
-            } = this;
+            } = this._info;
 
             const [
                 table, caption, thead
@@ -167,8 +144,7 @@
     const loader = new Loader("75_1.json");
     loader.load(json => {
         const renderer = new TableRenderer("#data");
-        renderer.setData(json);
-        renderer.render();
+        renderer.render(json);
     });
 
 </script>
