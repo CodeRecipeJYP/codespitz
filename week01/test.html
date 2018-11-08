@@ -79,8 +79,27 @@
                 error("invalid data type");
             }
 
-            this._info = await data.getData();
+            const {
+                title, header, items
+            } = await data.getData();
+
+            this._private = {
+                title, header, items
+            };
+
             this._render();
+        }
+
+        get title() {
+            return this._private.title;
+        }
+
+        get header() {
+            return this._private.header;
+        }
+
+        get items() {
+            return this._private.items;
         }
 
         _render() {
@@ -106,7 +125,7 @@
 
             const {
                 title, header, items
-            } = this._info;
+            } = this;
 
             const [
                 table, caption, thead
