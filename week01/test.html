@@ -64,7 +64,6 @@
         }
 
         async _getData() {
-            let json;
             if (typeof this._data == 'string') {
                 const response = await fetch(this._data);
                 return await response.json();
