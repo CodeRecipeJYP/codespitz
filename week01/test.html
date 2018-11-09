@@ -82,24 +82,7 @@
             const {
                 title, header, items
             } = await data.getData();
-
-            this._private = {
-                title, header, items
-            };
-
-            this._render();
-        }
-
-        get title() {
-            return this._private.title;
-        }
-
-        get header() {
-            return this._private.header;
-        }
-
-        get items() {
-            return this._private.items;
+            this._render(title, header, items);
         }
 
         _render() {
@@ -116,16 +99,12 @@
             this._parent = parent;
         }
 
-        _render() {
+        _render(title, header, items) {
             const parent = document.querySelector(this._parent);
             if (!parent) {
                 error("invaild parent");
             }
             parent.innerHTML = "";
-
-            const {
-                title, header, items
-            } = this;
 
             const [
                 table, caption, thead
