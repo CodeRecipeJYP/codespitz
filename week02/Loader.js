@@ -42,4 +42,3 @@ const Loader = class {
         repo.parse(extention, filename)
     }
 };
-
