@@ -1,6 +1,6 @@
 const MdParser = class extends Parser {
     _parseMD(v) {
-        return this._d64(v)
+        return d64(v)
             .split('\n')
             .map(v => {
                 let i = 3;
@@ -12,15 +12,6 @@ const MdParser = class extends Parser {
                 return v;
             })
             .join('<br>');
-    }
-
-    _d64(v) {
-        return decodeURIComponent(
-            atob(v)
-                .split('')
-                .map(c => '%' + ('00' +c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
     }
 
     parse(content) {

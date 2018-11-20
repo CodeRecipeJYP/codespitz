@@ -4,26 +4,17 @@ const Github = class {
     }
 
     load(path) {
-        if (!this._parser) {
-            return;
-        }
-        const id = 'callback' + Github._id++;
-        const f = Github[id] = ({data: { content }}) => {
-            delete Github[id];
-            document.head.removeChild(s);
-            this._parser.parse(content);
-        };
-        const s = document.createElement('script');
-        s.src = `${this._base + path}?callback=Github.${id}`;
-        document.head.appendChild(s);
-    }
-
-    setParser(parser) {
-        if (!(parser instanceof Parser)) {
-            error(`setParser: invalid argument parser=[${parser}]`);
-            return;
-        }
-        this._parser = parser;
+        return new Promise((res, rej) => {
+            const id = 'callback' + Github._id++;
+            const f = Github[id] = ({data: { content }}) => {
+                delete Github[id];
+                document.head.removeChild(s);
+                res(content);
+            };
+            const s = document.createElement('script');
+            s.src = `${this._base + path}?callback=Github.${id}`;
+            document.head.appendChild(s);
+        });
     }
 };
 

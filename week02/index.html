@@ -7,21 +7,32 @@
 <body>
 <img id="a">
 <section id="b"></section>
+<br/>
+<br/>
+<br/>
+<section id="c"></section>
 </body>
 <script src="utils.js"></script>
 <script src="Parser.js"></script>
 <script src="Github.js"></script>
+<script src="Loader.js"></script>
+<script src="Repo.js"></script>
 <script src="ImageParser.js"></script>
 <script src="MdParser.js"></script>
+<script src="TextParser.js"></script>
 <script>
-    const loader = new Github('hikaMaeng', 'codespitz75');
-
-    // const img = new ImageParser('#a');
-    // loader.setParser(img);
-    // loader.load('einBig.png');
-
+    const loader = new Loader();
+    loader.addRepo('s75', 'hikaMaeng', 'codespitz75');
+    const img = new ImageParser('#a');
     const md = new MdParser('#b');
-    loader.setParser(md);
-    loader.load('README.md');
+    loader.addRouter('s75', 'jpg,png,gif', img);
+    loader.addRouter('s75', 'md', md);
+    loader.load('s75', 'einBig.png');
+    loader.load('s75', 'README.md');
+
+    loader.addRepo('swe2022', 'hikaMaeng', 'swe2022');
+    const text = new TextParser('#c');
+    loader.addRouter('swe2022', 'java', text);
+    loader.load('swe2022', 'src/lesson3/Child.java');
 </script>
 </html>
