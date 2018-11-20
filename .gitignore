@@ -1,3 +1,5 @@
+.idea
+
 # Created by .ignore support plugin (hsz.mobi)
 ### Node template
 # Logs
@@ -65,7 +67,7 @@ typings/
 ### Example user template
 
 # IntelliJ project files
-.idea
+week01/.idea
 *.iml
 out
 gen

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<img id="a">
+<section id="b"></section>
+</body>
+<script src="Github.js"></script>
+<script src="img.js"></script>
+<script src="md.js"></script>
+<script>
+    const el = v => document.querySelector(v);
+    const loader = new Github('hikaMaeng', 'codespitz75');
+
+    loader.setParser(img, el('#a'));
+    loader.load('einBig.png');
+
+    loader.setParser(md, el('#b'));
+    loader.load('README.md');
+</script>
+</html>
