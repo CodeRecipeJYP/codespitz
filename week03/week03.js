@@ -1,41 +1,3 @@
-const TaskList = class {
-    constructor(title) {
-        if (!title) {
-            error('invalid title');
-        }
-
-        this._title = title;
-        this._list = [];
-    }
-
-    add(title, date) {
-        this._list.push(Task.get(title, date));
-    }
-
-    remove(task) {
-        const list = this._list;
-        if (list.includes(task)) {
-            list.splice(list.indexOf(task), 1);
-        }
-    }
-
-    byTitle(stateGroup = true) {
-        return this._getList(Sort.title, stateGroup);
-    }
-
-    byDate(stateGroup = true) {
-        return this._getList(Sort.date, stateGroup);
-    }
-
-    _getList(sort, stateGroup) {
-        const list = this._list;
-        return !stateGroup ? [...list].sort(sort) : [
-            ...list.filter(v => !v.isComplete()).sort(sort),
-            ...list.filter(v => v.isComplete()).sort(sort),
-        ];
-    }
-};
-
 const Sort = class {
     static title = (a, b) => a.sortTitle(b);
     static date = (a, b) => a.sortDate(b);
@@ -49,20 +11,16 @@ const Sort = class {
     }
 };
 
-const Task = class extends Sort {
-    static get(title, date = null) {
-        return new Task(title, date);
-    }
-
+const Task = class {
     // private constructor?
     constructor (title, date) {
-        super();
         if (!title) {
             error("invalid title");
         }
         this._title = title;
         this._date = date;
         this._isComplete = false;
+        this._list = [];
     }
 
     isComplete() {
@@ -73,11 +31,53 @@ const Task = class extends Sort {
         this._isComplete = !this._isComplete;
     }
 
-    sortTitle(task) {
-        return this._title > task._title;
+    // 유일한 생성점, 진입점이 필요함. 자기참조무결성?
+    add(title, date = null) {
+        this._list.push(new Task(title, date));
     }
 
-    sortDate(task) {
-        return this._date > task._date;
+    remove(task) {
+        const list = this._list;
+        if (list.includes(task)) {
+            list.splice(list.indexOf(task), 1);
+        }
+    }
+
+    byTitle(stateGroup = true) {
+        return this.list('title', stateGroup);
+    }
+
+    byDate(stateGroup = true) {
+        return this.list('date', stateGroup);
+    }
+
+    list(sort, stateGroup = true) {
+        if (!(sort === 'title' || sort === 'date')) {
+            error('invalid param');
+            return;
+        }
+
+        const list = this._list;
+        const sortFunc = (a, b) => a['_' + sort] > b['_' + sort];
+        return {
+            task: this,
+            list: !stateGroup ? [...list].sort(sortFunc) : [
+                ...list.filter(v => !v.isComplete()).sort(sortFunc),
+                ...list.filter(v => v.isComplete()).sort(sortFunc),
+            ]
+        };
     }
 };
+
+
+const list1  = new Task('bside');
+list1.add("지라설치");
+list1.add("지라zmffkdnemwjqthr");
+
+const list2  = new Task('s3-4');
+list2.add("2강 답안 작성");
+list2.add("3강 답안 작성");
+
+const list = list2.byDate();
+list[1].task.add("코드정리");
+list[1].task.add("다이어그램정리");
