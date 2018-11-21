@@ -1,6 +1,10 @@
 const Sort = class {
-    static title = (a, b) => a.sortTitle(b);
-    static date = (a, b) => a.sortDate(b);
+    static title(a, b) {
+        a.sortTitle(b);
+    }
+    static date(a, b) {
+        return a.sortDate(b);
+    }
 
     sortTitle(task) {
         error('override');
@@ -71,6 +75,40 @@ const Task = class {
     }
 };
 
+const el = (tag, attr={}) => Object.entries(attr).reduce((el, v) => {
+    typeof el[v[0]] === 'function' ? el[v[0]](v[1]) : (el[v[0]] = v[1]);
+    return el;
+}, document.createElement(tag));
+
+const DomRenderer = class {
+    constructor(parent) {
+        this._parent = parent;
+    }
+
+    render(data) {
+        const {
+            task: {
+                _title: title,
+            },
+            list,
+        } = data;
+
+        const parent = document.querySelector(this._parent);
+        parent.innerHTML = '';
+        parent.appendChild(el('h1', { innerHTML: title }));
+        parent.appendChild(this._render(el('ul'), list));
+    }
+
+    _render(parent, list) {
+        list.forEach(({ task, list }) => {
+            const li = parent.appendChild(el('li'));
+            li.appendChild(el('div', { innerHTML: task._title }));
+            li.appendChild(this._render(el('ul'), list));
+        });
+
+        return parent;
+    }
+};
 
 const list1  = new Task('bside');
 list1.add("지라설치");
@@ -81,5 +119,8 @@ list2.add("2강 답안 작성");
 list2.add("3강 답안 작성");
 
 const list = list2.byDate();
-list[1].task.add("코드정리");
-list[1].task.add("다이어그램정리");
+list.list[1].task.add("코드정리");
+list.list[1].task.add("다이어그램정리");
+
+const renderer = new DomRenderer("#b");
+renderer.render(list);
