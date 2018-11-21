@@ -1,20 +1,3 @@
-const Sort = class {
-    static title(a, b) {
-        a.sortTitle(b);
-    }
-    static date(a, b) {
-        return a.sortDate(b);
-    }
-
-    sortTitle(task) {
-        error('override');
-    }
-
-    sortDate(task) {
-        error('override');
-    }
-};
-
 const Task = class {
     // private constructor?
     constructor (title, date) {
