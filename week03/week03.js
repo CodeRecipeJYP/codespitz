@@ -1,5 +1,24 @@
-const Task = class {
-    constructor (title, date = null) {
+const Sort = class {
+    static title = (a, b) => a.sortTitle(b);
+    static date = (a, b) => a.sortDate(b);
+
+    sortTitle(task) {
+        error('override');
+    }
+
+    sortDate(task) {
+        error('override');
+    }
+};
+
+const Task = class extends Sort {
+    static get(title, date = null) {
+        return new Task(title, date);
+    }
+
+    // private constructor?
+    constructor (title, date) {
+        super();
         if (!title) {
             error("invalid title");
         }
@@ -23,9 +42,4 @@ const Task = class {
     sortDate(task) {
         return this._date > task._date;
     }
-};
-
-const taskSort = {
-    title: (a, b) => a.sortTitle(b),
-    date: (a, b) => a.sortDate(b),
 };
