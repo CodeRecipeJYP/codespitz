@@ -103,24 +103,30 @@ const DomRenderer = class {
         list.forEach(({ task, list }) => {
             const li = parent.appendChild(el('li'));
             li.appendChild(el('div', { innerHTML: task._title }));
-            li.appendChild(this._render(el('ul'), list));
+
+            if (list.length > 0) {
+                li.appendChild(this._render(el('ul'), list));
+            }
         });
 
         return parent;
     }
 };
 
-const list1  = new Task('bside');
+const list1 = new Task('bside');
 list1.add("지라설치");
 list1.add("지라zmffkdnemwjqthr");
 
-const list2  = new Task('s3-4');
+const list2 = new Task('s3-4');
 list2.add("2강 답안 작성");
 list2.add("3강 답안 작성");
 
 const list = list2.byDate();
-list.list[1].task.add("코드정리");
-list.list[1].task.add("다이어그램정리");
+const childrenTask = list.list[1].task;
+childrenTask.add("코드정리");
+childrenTask.add("다이어그램정리");
 
-const renderer = new DomRenderer("#b");
-renderer.render(list);
+const renderer1 = new DomRenderer("#b");
+const renderer2 = new DomRenderer("#c");
+renderer1.render(list1.byDate());
+renderer2.render(list2.byDate());
