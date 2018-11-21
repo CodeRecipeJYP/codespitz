@@ -59,12 +59,14 @@ const Task = class {
 
         const list = this._list;
         const sortFunc = (a, b) => a['_' + sort] > b['_' + sort];
+        const mapFunc = task => task.list(sort, stateGroup);
+
         return {
             task: this,
-            list: !stateGroup ? [...list].sort(sortFunc) : [
+            list: (!stateGroup ? [...list].sort(sortFunc) : [
                 ...list.filter(v => !v.isComplete()).sort(sortFunc),
                 ...list.filter(v => v.isComplete()).sort(sortFunc),
-            ]
+            ]).map(mapFunc)
         };
     }
 };
