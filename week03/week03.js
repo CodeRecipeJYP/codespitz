@@ -16,6 +16,22 @@ const Task = class {
 
     toggle() {
         this._isComplete = !this._isComplete;
+        this.notifyListener();
+    }
+
+    notifyListener() {
+        if (this._onToggleListener) {
+            this._onToggleListener(this._isComplete);
+        }
+    }
+
+    setOnToggleListener(listener) {
+        if (typeof listener !== 'function') {
+            error("invalid listener");
+            return;
+        }
+
+        this._onToggleListener = listener;
     }
 
     // 유일한 생성점, 진입점이 필요함. 자기참조무결성?
@@ -76,16 +92,34 @@ const DomRenderer = class {
             list,
         } = data;
 
+        const {
+            task,
+        } = data;
+
         const parent = document.querySelector(this._parent);
         parent.innerHTML = '';
-        parent.appendChild(el('h1', { innerHTML: title }));
+
+        const titleElement = el('h1');
+        task.setOnToggleListener((isComplete) => {
+            titleElement.style['text-decoration'] = isComplete ? "line-through" : "";
+        });
+
+        titleElement.appendChild(el('input', { type: "checkbox", id: "", onclick: getOnTaskCheckedFunc(task) }));
+        titleElement.append(title);
+        parent.appendChild(titleElement);
         parent.appendChild(this._render(el('ul'), list));
     }
 
     _render(parent, list) {
         list.forEach(({ task, list }) => {
             const li = parent.appendChild(el('li'));
-            li.appendChild(el('div', { innerHTML: task._title }));
+            const titleElement = el('div');
+            titleElement.append(el('input', { type: "checkbox", id: "", onclick: getOnTaskCheckedFunc(task) }));
+            task.setOnToggleListener((isComplete) => {
+                titleElement.style['text-decoration'] = isComplete ? "line-through" : "";
+            });
+            titleElement.append(task._title);
+            li.appendChild(titleElement);
 
             if (list.length > 0) {
                 li.appendChild(this._render(el('ul'), list));
@@ -94,6 +128,13 @@ const DomRenderer = class {
 
         return parent;
     }
+};
+
+
+const getOnTaskCheckedFunc = (task) => {
+    return () => {
+        task.toggle();
+    };
 };
 
 const list1 = new Task('bside');
