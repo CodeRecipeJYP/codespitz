@@ -57,71 +57,82 @@ const Task = class {
 };
 
 const Renderer = class {
+    constructor(visitor) {
+        this.visitor = visitor;
+    }
+
     render({task, list}) {
-        const v = this._folder(task);
-        this.subTask(this._parent(v, task), list);
+        const v = this.visitor.folder(task);
+        this.subTask(this.visitor.parent(v, task), list);
     }
 
     subTask(parent, list) {
         list.forEach(({task, list}) => {
-            const v = this._task(parent, task);
-            this.subTask(this._parent(v, this), list);
+            const v = this.visitor.task(parent, task);
+            this.subTask(this.visitor.parent(v, this), list);
         });
     }
+};
 
-    // template-method pattern
-    _folder(task) {
+// #1 dom비지터를 기반으로 정렬과 각 태스크별 완료 체크를 할수있게 구현하시오.
+// app renderer 수준을 만들어서 todo app 전체렌더러를만드는것도방법이다?
+// #2
+
+// lexical == 변수라고 간주
+
+// 전략객체지만 recursive 내에서 역할을 수행함.
+// for문 안에 있는 역할을 위임할수있다면
+const Visitor = class {
+    folder(task) {
         error("override");
     }
 
-    _parent(v, task) {
+    parent(v, task) {
         error("override");
     }
 
-    _task(v, task) {
+    task(v, task) {
         error("override");
     }
 };
 
-const DomRenderer = class extends Renderer {
+const DomVisitor = class extends Visitor {
     constructor(parent) {
         super();
         this._p = parent;
     }
 
-    _folder({ _title: title}) {
+    folder({ _title: title}) {
         const parent = document.querySelector(this._p);
         parent.innerHTML = '';
         parent.appendChild(el('h1', {innerHTML: title}));
         return parent;
     }
 
-    _parent(v, _) {
+    parent(v, _) {
         return v.appendChild(el('ul'));
     }
 
-    _task(v, {_title: title}) {
+    task(v, {_title: title}) {
         const li = v.appendChild(el('li'));
         li.appendChild(el('div', {innerHTML: title}));
         return li;
     }
 };
 
-const ConsoleRenderer = class extends Renderer {
-    _folder({ _title: title}) {
+const ConsoleVisitor = class extends Visitor {
+    folder({ _title: title}) {
         console.log('-------------');
         console.log('folder:', title);
         return '';
     }
 
-    _parent(v, _) {
+    parent(v, _) {
         return v;
     }
 
-    _task(v, {_title: title}) {
+    task(v, {_title: title}) {
         console.log(v, title);
         return v + '-';
     }
 };
-
-// lexical == 변수라고 간주
