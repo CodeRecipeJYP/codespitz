@@ -1,3 +1,10 @@
+const Renderer = class {
+
+};
+Renderer.Processor = class {
+
+};
+
 const Dom = class extends Renderer.Processor {
     constructor(parent) {
         super();
@@ -14,7 +21,8 @@ const Dom = class extends Renderer.Processor {
 
     task(task) {
         const li = el('li', {
-            innerHTML: this._tv.task(this.prop.ptask, task)
+            innerHTML: this.taskRender(task)
+            // innerHTML: this._tv.task(this.prop.ptask, task)
         });
         // li.appendChild(el('div', {innnerHTML: task._title}));
         this.prop.parennt.appendChild(li);
@@ -75,3 +83,22 @@ const Member = class extends TaskView {
         );
     }
 };
+
+const Remove = class extends TaskView {
+    constructor(render) {
+        super();
+        this._render = render;
+    }
+
+    _task(parent, task) {
+        const id = Remove.id++;
+        Remove[id] = (_) => {
+            delete Remove[id];
+            parent.remove(task);
+            this._render();
+        };
+
+        return this.result + `<a onclick="Remove[${id}]()">X</a>`;
+    }
+};
+Remove.id = 0;
