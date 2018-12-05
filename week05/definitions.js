@@ -1,8 +1,64 @@
 const Renderer = class {
+    constructor(processor) {
+        this.p = processor;
+        processor.setObserver(this);
+    }
 
+    observe(type) {
+        if (type == 'rerender') {
+            this.rerender();
+        }
+    }
+
+    rerender() {
+        if (this.oldList) {
+            this.render(this.oldList);
+        }
+    }
+
+    render(list) {
+        this.oldList = list;
+    }
 };
-Renderer.Processor = class {
 
+Renderer.Processor = class {
+    constructor() {
+        this.prop = Object.create(null);
+        this._tv = TaskView.base;
+    }
+
+    observe(msg) {
+        this.notify(msg);
+    }
+
+    setObserver(v) {
+        this.observer = v;
+    }
+
+    notify(msg) {
+        this.observer && this.observer.observe(msg);
+    }
+
+    taskView(...tv) {
+        tv.forEach(tv => this._tv = v.set(this._tv));
+    }
+
+    folder(task) {
+        error('override');
+    }
+
+    task(task) {
+        error('override');
+    }
+
+    parent(task) {
+        error('override');
+    }
+
+    taskRender(task) {
+        this._tv.setObserver(this);
+        this._tv.task(this.prop.ptask, task);
+    }
 };
 
 const Dom = class extends Renderer.Processor {
@@ -42,6 +98,16 @@ const Dom = class extends Renderer.Processor {
 };
 
 const TaskView = class {
+    setObserver(v) {
+        this.observer = v;
+    }
+
+    notify(msg) {
+        if (this.observer) {
+            this.observer.observe(msg);
+        }
+    }
+
     set(tv) {
         this._tv = tv;
         return this;
@@ -95,7 +161,7 @@ const Remove = class extends TaskView {
         Remove[id] = (_) => {
             delete Remove[id];
             parent.remove(task);
-            this._render();
+            this.notify('rerender');
         };
 
         return this.result + `<a onclick="Remove[${id}]()">X</a>`;
