@@ -14,4 +14,4 @@ const dom = new Dom('#base');
 dom.taskView(new Priority(), new Member(), new Remove());
 
 const renderer = new Renderer(dom);
-renderer.render(folder.list('title'));
+renderer.render(new SortedTask(folder, 'title'));

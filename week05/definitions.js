@@ -56,6 +56,27 @@ const Task = class {
     }
 };
 
+const SortedTask = class {
+    constructor(task, sort) {
+        this._task = task;
+        this._sort = sort;
+
+        try {
+            const _ = this._task.list(this._sort);
+        } catch (e) {
+            error(e);
+        }
+    }
+
+    get list() {
+        return this._task.list(this._sort)['list'];
+    }
+
+    get task() {
+        return this._task;
+    }
+};
+
 const Renderer = class {
     constructor(processor) {
         this.p = processor;
