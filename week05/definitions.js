@@ -1,3 +1,61 @@
+const Task = class {
+    constructor (title, date) {
+        if (!title) {
+            error("invalid title");
+        }
+        this._title = title;
+        this._date = date;
+        this._isComplete = false;
+        this._list = [];
+    }
+
+    isComplete() {
+        return this._isComplete;
+    }
+
+    toggle() {
+        this._isComplete = !this._isComplete;
+    }
+
+    add(title, date = null) {
+        this._list.push(new Task(title, date));
+    }
+
+    remove(task) {
+        const list = this._list;
+        if (list.includes(task)) {
+            list.splice(list.indexOf(task), 1);
+        }
+    }
+
+    byTitle(stateGroup = true) {
+        return this.list('title', stateGroup);
+    }
+
+    byDate(stateGroup = true) {
+        return this.list('date', stateGroup);
+    }
+
+    list(sort, stateGroup = true) {
+        if (!(sort === 'title' || sort === 'date')) {
+            error('invalid param');
+            return;
+        }
+
+        const list = this._list;
+        const sortFunc = (a, b) => a['_' + sort] > b['_' + sort];
+        const mapFunc = task => task.list(sort, stateGroup);
+
+        return {
+            task: this,
+            list: (!stateGroup ? [...list].sort(sortFunc) : [
+                ...list.filter(v => !v.isComplete()).sort(sortFunc),
+                ...list.filter(v => v.isComplete()).sort(sortFunc),
+            ]).map(mapFunc)
+        };
+    }
+};
+
 const Renderer = class {
     constructor(processor) {
         this.p = processor;
@@ -18,6 +76,24 @@ const Renderer = class {
 
     render(list) {
         this.oldList = list;
+        const {
+            task,
+            list: sublist,
+        } = list;
+
+        this.p.folder(task);
+        this.p.parent(task);
+        this.subTask(sublist);
+    }
+
+    subTask(list) {
+        list.forEach(({task, list}) => {
+            this.p.task(task);
+            if (list.length) {
+                this.p.parent(task);
+                this.subTask(list);
+            }
+        });
     }
 };
 
@@ -40,7 +116,10 @@ Renderer.Processor = class {
     }
 
     taskView(...tv) {
-        tv.forEach(tv => this._tv = v.set(this._tv));
+        tv.forEach(eachTv => {
+            eachTv.set(this._tv);
+            this._tv = eachTv;
+        });
     }
 
     folder(task) {
@@ -57,7 +136,7 @@ Renderer.Processor = class {
 
     taskRender(task) {
         this._tv.setObserver(this);
-        this._tv.task(this.prop.ptask, task);
+        return this._tv.task(this.prop.ptask, task);
     }
 };
 
@@ -81,8 +160,8 @@ const Dom = class extends Renderer.Processor {
             // innerHTML: this._tv.task(this.prop.ptask, task)
         });
         // li.appendChild(el('div', {innnerHTML: task._title}));
-        this.prop.parennt.appendChild(li);
-        this.prop.parennt = li;
+        this.prop.parent.appendChild(li);
+        this.prop.parent = li;
     }
 
     parent(task) {
@@ -90,10 +169,6 @@ const Dom = class extends Renderer.Processor {
         this.prop.parent.appendChild(ul);
         this.prop.parent = ul;
         this.prop.ptask = task;
-    }
-
-    taskView(...tv) {
-        tv.forEach(tv => this._tv = v.set(this._tv));
     }
 };
 
@@ -110,10 +185,9 @@ const TaskView = class {
 
     set(tv) {
         this._tv = tv;
-        return this;
     }
 
-    task(parennt, task) {
+    task(parent, task) {
         this.result = this._prev ? this._tv.task(parent, task) : task._title;
         return this._task(parent, task);
     }
@@ -151,11 +225,6 @@ const Member = class extends TaskView {
 };
 
 const Remove = class extends TaskView {
-    constructor(render) {
-        super();
-        this._render = render;
-    }
-
     _task(parent, task) {
         const id = Remove.id++;
         Remove[id] = (_) => {
@@ -164,7 +233,7 @@ const Remove = class extends TaskView {
             this.notify('rerender');
         };
 
-        return this.result + `<a onclick="Remove[${id}]()">X</a>`;
+        return this.result + ` <a onclick="Remove[${id}]()">X</a>`;
     }
 };
 Remove.id = 0;
