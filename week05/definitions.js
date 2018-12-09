@@ -130,6 +130,7 @@ Renderer.Processor = class {
     constructor() {
         this.prop = Object.create(null);
         this._tv = TaskView.base;
+        this._fv = FolderView.base;
     }
 
     observe(msg) {
@@ -151,6 +152,13 @@ Renderer.Processor = class {
         });
     }
 
+    folderView(...fv) {
+        fv.forEach(eachFv => {
+            eachFv.set(this._fv);
+            this._fv = eachFv;
+        });
+    }
+
     folder(task) {
         error('override');
     }
@@ -161,6 +169,11 @@ Renderer.Processor = class {
 
     parent(task) {
         error('override');
+    }
+
+    folderRender(task) {
+        this._fv.setObserver(this);
+        return this._fv.folder(task);
     }
 
     taskRender(task) {
@@ -176,19 +189,17 @@ const Dom = class extends Renderer.Processor {
         this._tv = TaskView.base;
     }
 
-    folder({_title: title}) {
+    folder(task) {
         const parent = document.querySelector(this._p);
         parent.innerHTML = "";
-        parent.appendChild(el('h1', {innerHTML: title}));
+        parent.appendChild(el('h1', {innerHTML: this.folderRender(task)}));
         this.prop.parent = parent;
     }
 
     task(task) {
         const li = el('li', {
             innerHTML: this.taskRender(task)
-            // innerHTML: this._tv.task(this.prop.ptask, task)
         });
-        // li.appendChild(el('div', {innnerHTML: task._title}));
         this.prop.parent.appendChild(li);
         this.prop.parent = li;
     }
@@ -217,7 +228,7 @@ const TaskView = class {
     }
 
     task(parent, task) {
-        this.result = this._prev ? this._tv.task(parent, task) : task._title;
+        this.result = this._tv ? this._tv.task(parent, task) : task._title;
         return this._task(parent, task);
     }
 
@@ -231,6 +242,43 @@ TaskView.base = new (class extends TaskView {
         return this.result;
     }
 });
+
+const FolderView = class {
+    setObserver(v) {
+        this.observer = v;
+    }
+
+    notify(msg) {
+        if (this.observer) {
+            this.observer.observe(msg);
+        }
+    }
+
+    set(fv) {
+        this._fv = fv;
+    }
+
+    folder(task) {
+        this.result = this._fv ? this._fv.folder(task) : task._title;
+        return this._folder(task);
+    }
+
+    _folder(task) {
+        error("override");
+    }
+};
+
+FolderView.base = new (class extends FolderView {
+    _folder(task) {
+        return this.result;
+    }
+});
+
+const Complete = class extends FolderView {
+    _folder(task) {
+        return `<span style="text-decoration: ${task._isComplete ? "line-through" : ""}">${this.result}</span>`;
+    }
+};
 
 const Priority = class extends TaskView {
     _task(parent, task) {

@@ -12,7 +12,9 @@ sublist[1].task.add('디자인개선');
 
 const dom = new Dom('#base');
 dom.taskView(new Priority(), new Member(), new Remove());
+dom.folderView(new Complete());
 
 const renderer = new Renderer(dom);
 // renderer.render(new SortedTask(folder, 'title'));
+folder.toggle();
 renderer.render(folder);
