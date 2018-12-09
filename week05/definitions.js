@@ -9,6 +9,14 @@ const Task = class {
         this._list = [];
     }
 
+    get task() {
+        return this;
+    }
+
+    get list() {
+        return this._list;
+    }
+
     isComplete() {
         return this._isComplete;
     }
@@ -29,14 +37,14 @@ const Task = class {
     }
 
     byTitle(stateGroup = true) {
-        return this.list('title', stateGroup);
+        return this.sortedList('title', stateGroup);
     }
 
     byDate(stateGroup = true) {
-        return this.list('date', stateGroup);
+        return this.sortedList('date', stateGroup);
     }
 
-    list(sort, stateGroup = true) {
+    sortedList(sort, stateGroup = true) {
         if (!(sort === 'title' || sort === 'date')) {
             error('invalid param');
             return;
@@ -44,7 +52,7 @@ const Task = class {
 
         const list = this._list;
         const sortFunc = (a, b) => a['_' + sort] > b['_' + sort];
-        const mapFunc = task => task.list(sort, stateGroup);
+        const mapFunc = task => task.sortedList(sort, stateGroup);
 
         return {
             task: this,
@@ -62,14 +70,14 @@ const SortedTask = class {
         this._sort = sort;
 
         try {
-            const _ = this._task.list(this._sort);
+            const _ = this._task.sortedList(this._sort);
         } catch (e) {
             error(e);
         }
     }
 
     get list() {
-        return this._task.list(this._sort)['list'];
+        return this._task.sortedList(this._sort)['list'];
     }
 
     get task() {
