@@ -72,28 +72,28 @@ const FolderView = class extends View {
             const title = li.appendChild(el('span', { innerHTML: task.title }));
             if (task.isComplete) {
                 title.style.textDecoration = 'line-through';
-                const x = li.appendChild(el('span', { innerHTML: 'X'}));
+            }
+            const x = li.appendChild(el('span', { innerHTML: 'X'}));
 
-                x.onclick = _ => this.controller.remove(parent, task);
-                const input = li.appendChild(el('input'));
-                input.onclick = e => e.stopImmediatePropagation();
-                input.onkeyup = e => {
-                    e.stopImmediatePropagation();
-                    const {keyCode, target} = e;
-                    if (keyCode !== KEY.ENTER) {
-                        return;
-                    }
-                    this.controller.add(task, target.value);
-                    target.value = '';
-                };
-                li.onclick = e => {
-                    e.stopImmediatePropagation();
-                    this.controller.toggle(task);
-                };
-
-                if (list.length) {
-                    this.subTaksk(li.appendChild(el('ul')), task, list);
+            x.onclick = _ => this.controller.remove(parent, task);
+            const input = li.appendChild(el('input'));
+            input.onclick = e => e.stopImmediatePropagation();
+            input.onkeyup = e => {
+                e.stopImmediatePropagation();
+                const {keyCode, target} = e;
+                if (keyCode !== KEY.ENTER) {
+                    return;
                 }
+                this.controller.add(task, target.value);
+                target.value = '';
+            };
+            li.onclick = e => {
+                e.stopImmediatePropagation();
+                this.controller.toggle(task);
+            };
+
+            if (list.length) {
+                this.subTask(li.appendChild(el('ul')), task, list);
             }
         });
     }

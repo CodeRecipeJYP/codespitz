@@ -27,7 +27,7 @@ const Index = class extends Controller {
     }
 
     listen(m) {
-        this.action();
+        this.action(m);
     }
 
     add(title) {
