@@ -1,23 +1,23 @@
 const Model = class extends Set {
-    add() {
-        throw 1
-    }
-
-    delete() {
-        throw 1
-    }
-
-    has() {
-        throw 1
-    }
-
     constructor(prop) {
         super();
         this._prop = Object.assign(Object.create(null), prop);
     }
 
+    add() {
+        error("override");
+    }
+
+    delete() {
+        error("override");
+    }
+
+    has() {
+        error("override");
+    }
+
     listen() {
-        throw 1;
+        error("override");
     }
 
     addListener(c) {
