@@ -45,7 +45,13 @@ const FolderView = class extends View {
     constructor(controller) {
         super(controller);
         this.p = document.querySelector('#folder');
-        document.querySelector('#newTask').onkeyup = e => {
+        this.h2 = this.p.appendChild(el('h2'));
+        this.ul = this.p.appendChild(el('ul'));
+        this.newTask = document.querySelector('#newTask');
+    }
+
+    setNewTask(f) {
+        this.newTask.onkeyup = e => {
             e.stopImmediatePropagation();
             const {
                 keyCode,
@@ -56,14 +62,29 @@ const FolderView = class extends View {
                 return;
             }
 
-            controller.addNew(target.value);
+            f(target.value);
             target.value = '';
         };
     }
 
-    render({ task, list }) {
-        this.p.innerHTML = `<h2>${task.title}</h2>`;
-        this.subTask(this.p.appendChild(el('ul')), task, list);
+    setTitle(title) {
+        this.h2.innerHTML = title;
+    }
+
+    setRemove(f) {
+        this.remove = f;
+    }
+
+    setToggle(f) {
+        this.toggle = f;
+    }
+
+    setAdd(f) {
+        this.add = f;
+    }
+
+    setList({ task, list }) {
+        this.subTask(this.ul, task, list);
     }
 
     subTask(ul, parent, list) {
@@ -72,28 +93,36 @@ const FolderView = class extends View {
             const title = li.appendChild(el('span', { innerHTML: task.title }));
             if (task.isComplete) {
                 title.style.textDecoration = 'line-through';
-                const x = li.appendChild(el('span', { innerHTML: 'X'}));
+            }
+            const x = li.appendChild(el('span', { innerHTML: 'X'}));
 
-                x.onclick = _ => this.controller.remove(parent, task);
-                const input = li.appendChild(el('input'));
-                input.onclick = e => e.stopImmediatePropagation();
-                input.onkeyup = e => {
-                    e.stopImmediatePropagation();
-                    const {keyCode, target} = e;
-                    if (keyCode !== KEY.ENTER) {
-                        return;
-                    }
-                    this.controller.add(task, target.value);
-                    target.value = '';
-                };
-                li.onclick = e => {
-                    e.stopImmediatePropagation();
-                    this.controller.toggle(task);
-                };
-
-                if (list.length) {
-                    this.subTaksk(li.appendChild(el('ul')), task, list);
+            x.onclick = _ => {
+                if (this.remove) {
+                    this.remove(parent, task);
                 }
+            };
+            const input = li.appendChild(el('input'));
+            input.onclick = e => e.stopImmediatePropagation();
+            input.onkeyup = e => {
+                e.stopImmediatePropagation();
+                const {keyCode, target} = e;
+                if (keyCode !== KEY.ENTER) {
+                    return;
+                }
+                if (this.add) {
+                    this.add(task, target.value);
+                }
+                target.value = '';
+            };
+            li.onclick = e => {
+                e.stopImmediatePropagation();
+                if (this.toggle) {
+                    this.toggle(task);
+                }
+            };
+
+            if (list.length) {
+                this.subTask(li.appendChild(el('ul')), task, list);
             }
         });
     }
