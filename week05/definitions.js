@@ -283,7 +283,7 @@ const Complete = class extends FolderView {
 const Priority = class extends TaskView {
     _task(parent, task) {
         return this.result.replace(
-            /\[(urgent|high|normal|low)\]/gi, '<span class="$1">$1</span>'
+            /\[(urgent|high|normal|low)\]/gi, '<span class="$1">■</span>'
         );
     }
 };
